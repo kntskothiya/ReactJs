@@ -41,57 +41,10 @@ body {
   margin-bottom: 20px;
 }
 
-/* p {
-  display: flex;
-  align-items: baseline;
-} */
-
-/* .tri-state-toggle {
-  border-radius: 24px;
-  display: inline-block;
-  overflow: hidden;
-  display: inline-flex;
-  flex-direction: row;
-  transition: all 500ms ease;
-} */
-
-/* .tri-state-toggle-button {
-  border-radius: 22px;
-  height: 45px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 120px;
-  background-color: transparent;
-  border: 0px solid transparent;
-  margin: 2px;
-  color: white;
-  cursor: pointer;
-} */
-
-/* .tri-state-toggle-button.active {
-  background-image: linear-gradient(
-    90deg,
-    rgba(229, 3, 87, 1) 0%,
-    rgba(229, 3, 56, 1) 35%,
-    rgba(219, 101, 17, 1) 100%
-  );
-  color: white;
-  font-weight: 500;
-  transition: all 0.5s ease-in;
-} */
-
-/* .tri-state-toggle-button:focus {
-  outline: none;
-} */
-
 .toggle-button {
   background: rgb(224, 224, 224);
   border-radius: 25px;
-  /* display: inline-block; */
-  /* overflow: hidden; */
   display: inline-flex;
-  /* flex-direction: row; */
   transition: all 500ms ease;
 }
 
@@ -123,4 +76,13 @@ body {
   font-size: 37px;
   margin-left: 15px;
   color: teal;
+}
+
+.taskscroll{
+  overflow: scroll;
+  height: 315px;
+}
+
+.taskscroll::-webkit-scrollbar{
+  display: none;
 }

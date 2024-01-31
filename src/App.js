@@ -1,10 +1,10 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import { useState , useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FaSquarePlus } from "react-icons/fa6";
 import { FaPencilAlt } from "react-icons/fa";
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import "sweetalert2/dist/sweetalert2.min.css";
 import moment from "moment";
@@ -21,11 +21,13 @@ function App() {
 
     if (storeddata) {
       setlistitem(storeddata.map((item) => item.inputdata));
-      setitemtask(storeddata.map((item) => ({
-        ...item,
-        stime: "",
-        etime: "",
-      })));
+      setitemtask(
+        storeddata.map((item) => ({
+          ...item,
+          stime: "",
+          etime: "",
+        }))
+      );
     }
   }, []);
 
@@ -36,8 +38,7 @@ function App() {
   function additems() {
     if (inputdata === "") {
       return;
-    }
-    else if (editindex !== null) {
+    } else if (editindex !== null) {
       setitemtask((prevStates) => {
         let updatetask = [...prevStates];
         updatetask[editindex] = {
@@ -220,7 +221,6 @@ function App() {
     let minutes = Math.floor((second % 3600) / 60);
     let seconds = second % 60;
     let time = (num) => (num < 10 ? `0${num}` : num);
-
     return `${time(hours)}:${time(minutes)}:${time(seconds)}`;
   };
 
@@ -242,7 +242,6 @@ function App() {
                 onChange={(e) => setinputdata(e.target.value)}
                 onKeyDown={enterkey}
               />
-
               <FaSquarePlus id="addbutton" onClick={additems} />
             </div>
 
@@ -280,64 +279,68 @@ function App() {
               />
             </div>
 
-            {listitem.map((element, index) => {
-              let filter =
-                filteritems === "all" ||
-                (filteritems === "pending" &&
-                  itemtask[index].strike === "") ||
-                (filteritems === "complete" && itemtask[index].strike !== "");
+            <div className="taskscroll">
+              {listitem.map((element, index) => {
+                let filter =
+                  filteritems === "all" ||
+                  (filteritems === "pending" && itemtask[index].strike === "") ||
+                  (filteritems === "complete" && itemtask[index].strike !== "");
 
-              return filter ? (
-                <div
-                  key={index}
-                  className="container d-flex justify-content-between align-items-center"
-                >
-                  <>
-                    <span className="toggle-button me-2">
-                      <input
-                        style={{ backgroundColor: itemtask[index].pcolor }}
-                        type="button"
-                        className="toggle-buttton pending-btn"
-                        onClick={() => resettimer(index)}
-                        id="pending"
+                return filter ? (
+                  <div
+                    key={index}
+                    className="container d-flex justify-content-between align-items-center"
+                  >
+                    <>
+                      <span className="toggle-button me-2">
+                        <input
+                          style={{ backgroundColor: itemtask[index].pcolor }}
+                          type="button"
+                          className="toggle-buttton pending-btn"
+                          onClick={() => resettimer(index)}
+                          id="pending"
+                        />
+                        <input
+                          style={{ backgroundColor: itemtask[index].oncolor }}
+                          type="button"
+                          className="toggle-buttton ongoing-btn"
+                          onClick={() => start(index)}
+                          id="ongoing"
+                        />
+                        <input
+                          style={{ backgroundColor: itemtask[index].ccolor }}
+                          type="button"
+                          className="toggle-buttton completebutton-btn"
+                          onClick={() => stop(index)}
+                          id="done"
+                        />
+                      </span>
+                      <p
+                        className="ms-5"
+                        id="todo-item"
+                        style={{
+                          textDecoration: itemtask[index].strike,
+                          width: "60px",
+                        }}
+                      >
+                        {element}
+                      </p>
+                      <span id="stop-watch" className="ms-auto">
+                        {format(itemtask[index].seconds)}
+                      </span>
+                      <FaPencilAlt
+                        className="ms-auto fs-4"
+                        onClick={() => editItem(index)}
                       />
-                      <input
-                        style={{ backgroundColor: itemtask[index].oncolor }}
-                        type="button"
-                        className="toggle-buttton ongoing-btn"
-                        onClick={() => start(index)}
-                        id="ongoing"
+                      <DeleteIcon
+                        className="ms-3 fs-3"
+                        onClick={() => deleteitems(index)}
                       />
-                      <input
-                        style={{ backgroundColor: itemtask[index].ccolor }}
-                        type="button"
-                        className="toggle-buttton completebutton-btn"
-                        onClick={() => stop(index)}
-                        id="done"
-                      />
-                    </span>
-                    <p
-                      className="ms-5"
-                      id="todo-item"
-                      style={{ textDecoration: itemtask[index].strike, width:"70px" }}
-                    >
-                      {element}
-                    </p>
-                    <span id="stop-watch" className="ms-auto">
-                      {format(itemtask[index].seconds)}
-                    </span>
-                    <FaPencilAlt
-                      className="ms-auto fs-4"
-                      onClick={() => editItem(index)}
-                    />
-                    <DeleteIcon
-                      className="ms-3 fs-3"
-                      onClick={() => deleteitems(index)}
-                    />
-                  </>
-                </div>
-              ) : null;
-            })}
+                    </>
+                  </div>
+                ) : null;
+              })}
+            </div>
           </div>
         </div>
       </div>

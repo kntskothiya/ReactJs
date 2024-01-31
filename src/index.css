@@ -12,14 +12,3 @@ code {
     monospace;
 } */
 
-/*
-
-  git init
-  git status  // check status
-  git add .   // for add files in git
-  git commit -m "initial commit"    // for commit in git
-  git remote add origin then paste the SSH link form github
-  git push origin master
-
-
- */
