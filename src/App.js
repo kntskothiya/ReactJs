@@ -39,8 +39,8 @@ function App() {
     if (inputdata === "") {
       return;
     } else if (editindex !== null) {
-      setitemtask((prevStates) => {
-        let updatetask = [...prevStates];
+      setitemtask((a) => {
+        let updatetask = [...a];
         updatetask[editindex] = {
           ...updatetask[editindex],
           inputdata: inputdata,
@@ -139,8 +139,8 @@ function App() {
     listitem.forEach((item, index) => {
       if (itemtask[index].runtime) {
         timers[index] = setInterval(() => {
-          setitemtask((prevStates) => {
-            let newtask = [...prevStates];
+          setitemtask((a) => {
+            let newtask = [...a];
             newtask[index] = {
               ...newtask[index],
               seconds: newtask[index].seconds + 1,
@@ -156,8 +156,8 @@ function App() {
   }, [itemtask, listitem]);
 
   function start(index) {
-    setitemtask((prevStates) => {
-      let newtask = [...prevStates];
+    setitemtask((a) => {
+      let newtask = [...a];
       newtask[index] = {
         ...newtask[index],
         runtime: true,
@@ -174,8 +174,8 @@ function App() {
   }
 
   function stop(index) {
-    setitemtask((prevStates) => {
-      let newtask = [...prevStates];
+    setitemtask((a) => {
+      let newtask = [...a];
       newtask[index] = {
         ...newtask[index],
         runtime: false,
@@ -191,8 +191,8 @@ function App() {
   }
 
   function resettimer(index) {
-    setitemtask((prevStates) => {
-      let newtask = [...prevStates];
+    setitemtask((a) => {
+      let newtask = [...a];
       newtask[index] = {
         ...newtask[index],
         pcolor: "#0b5ed7",
