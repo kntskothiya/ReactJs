@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import { useState , useEffect } from "react";
+import { useState } from "react";
 import { FaSquarePlus } from "react-icons/fa6";
 import { FaPencilAlt } from "react-icons/fa";
-import DeleteIcon from '@mui/icons-material/Delete';
+import { MdDelete } from "react-icons/md";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import "sweetalert2/dist/sweetalert2.min.css";
 import moment from "moment";
@@ -13,21 +13,8 @@ function App() {
   let [inputdata, setinputdata] = useState("");
   let [listitem, setlistitem] = useState([]);
   let [editindex, seteditindex] = useState(null);
-  let [itemtask, setitemtask] = useState([]);
+  let [itemStates, setItemStates] = useState([]);
   let [filteritems, setfilteritems] = useState("all");
-
-  useEffect(() => {
-    let storeddata = JSON.parse(localStorage.getItem("info"));
-
-    if (storeddata) {
-      setlistitem(storeddata.map((item) => item.inputdata));
-      setitemtask(storeddata.map((item) => ({
-        ...item,
-        stime: "",
-        etime: "",
-      })));
-    }
-  }, []);
 
   let filtertask = (status) => {
     setfilteritems(status);
@@ -36,29 +23,27 @@ function App() {
   function additems() {
     if (inputdata === "") {
       return;
-    }
-    else if (editindex !== null) {
-      setitemtask((prevStates) => {
-        let updatetask = [...prevStates];
-        updatetask[editindex] = {
-          ...updatetask[editindex],
+    } else if (editindex !== null) {
+      setlistitem((prevItems) => {
+        let updatedItems = [...prevItems];
+        updatedItems[editindex] = inputdata;
+        return updatedItems;
+      });
+
+      setItemStates((prevStates) => {
+        let updatedStates = [...prevStates];
+        updatedStates[editindex] = {
+          ...updatedStates[editindex],
           inputdata: inputdata,
         };
-        return updatetask;
+        return updatedStates;
       });
 
       seteditindex(null);
-
-      let updatels = [...itemtask];
-      updatels[editindex] = {
-        ...updatels[editindex],
-        inputdata: inputdata,
-      };
-      localStorage.setItem("info", JSON.stringify(updatels));
     } else {
       setlistitem([...listitem, inputdata]);
-      setitemtask([
-        ...itemtask,
+      setItemStates([
+        ...itemStates,
         {
           inputdata,
           runtime: false,
@@ -71,27 +56,13 @@ function App() {
           etime: "",
         },
       ]);
-
-      localStorage.setItem(
-        "info",
-        JSON.stringify([
-          ...itemtask,
-          {
-            inputdata,
-            runtime: false,
-            pcolor: "#0b5ed7",
-            oncolor: "",
-            ccolor: "",
-            strike: "",
-            seconds: 0,
-            stime: "",
-            etime: "",
-          },
-        ])
-      );
     }
     setinputdata("");
   }
+
+  useEffect(() => {
+    localStorage.setItem("info", JSON.stringify(itemStates));
+  }, [itemStates]);
 
   function enterkey(e) {
     if (e.key === "Enter") {
@@ -102,10 +73,10 @@ function App() {
 
   function clearall() {
     setlistitem([]);
-    localStorage.clear();
+    localStorage.clear()
   }
 
-  function deleteitems(index) {
+  function deleteitems(id) {
     Swal.fire({
       title: "Are you sure?",
       icon: "warning",
@@ -116,14 +87,10 @@ function App() {
       cancelButtonText: "No",
     }).then((result) => {
       if (result.isConfirmed) {
-        let updateitem = [...listitem];
-        updateitem.splice(index, 1);
-
-        let abc = [...itemtask];
-        abc.splice(index, 1);
-        setlistitem(updateitem);
-        setitemtask(abc);
-        savelocalstorage(abc);
+        let deleteitem = listitem.filter((element, index) => {
+          return index !== id;
+        });
+        setlistitem(deleteitem);
         Swal.fire({
           title: "Deleted!",
           text: "Your task has been deleted.",
@@ -135,10 +102,11 @@ function App() {
 
   useEffect(() => {
     let timers = [];
+
     listitem.forEach((item, index) => {
-      if (itemtask[index].runtime) {
+      if (itemStates[index].runtime) {
         timers[index] = setInterval(() => {
-          setitemtask((prevStates) => {
+          setItemStates((prevStates) => {
             let newtask = [...prevStates];
             newtask[index] = {
               ...newtask[index],
@@ -149,13 +117,14 @@ function App() {
         }, 1000);
       }
     });
+
     return () => {
       timers.forEach((timer) => clearInterval(timer));
     };
-  }, [itemtask, listitem]);
+  }, [itemStates, listitem]);
 
   function start(index) {
-    setitemtask((prevStates) => {
+    setItemStates((prevStates) => {
       let newtask = [...prevStates];
       newtask[index] = {
         ...newtask[index],
@@ -165,15 +134,13 @@ function App() {
         oncolor: "#ffca2c",
         ccolor: "",
         stime: moment().format("hh:mm:ss A"),
-        etime: "",
       };
-      savelocalstorage(newtask);
       return newtask;
     });
   }
 
   function stop(index) {
-    setitemtask((prevStates) => {
+    setItemStates((prevStates) => {
       let newtask = [...prevStates];
       newtask[index] = {
         ...newtask[index],
@@ -184,13 +151,12 @@ function App() {
         ccolor: "#157347",
         etime: moment().format("hh:mm:ss A"),
       };
-      savelocalstorage(newtask);
       return newtask;
     });
   }
 
   function resettimer(index) {
-    setitemtask((prevStates) => {
+    setItemStates((prevStates) => {
       let newtask = [...prevStates];
       newtask[index] = {
         ...newtask[index],
@@ -201,13 +167,8 @@ function App() {
         seconds: 0,
         runtime: false,
       };
-      savelocalstorage(newtask);
       return newtask;
     });
-  }
-
-  function savelocalstorage(abctime) {
-    localStorage.setItem("info", JSON.stringify(abctime));
   }
 
   function editItem(index) {
@@ -219,6 +180,7 @@ function App() {
     let hours = Math.floor(second / 3600);
     let minutes = Math.floor((second % 3600) / 60);
     let seconds = second % 60;
+
     let time = (num) => (num < 10 ? `0${num}` : num);
 
     return `${time(hours)}:${time(minutes)}:${time(seconds)}`;
@@ -284,57 +246,58 @@ function App() {
               let filter =
                 filteritems === "all" ||
                 (filteritems === "pending" &&
-                  itemtask[index].strike === "") ||
-                (filteritems === "complete" && itemtask[index].strike !== "");
+                  itemStates[index].strike === "") ||
+                (filteritems === "complete" && itemStates[index].strike !== "");
 
               return filter ? (
                 <div
                   key={index}
                   className="container d-flex justify-content-between align-items-center"
                 >
-                  <>
-                    <span className="toggle-button me-2">
-                      <input
-                        style={{ backgroundColor: itemtask[index].pcolor }}
-                        type="button"
-                        className="toggle-buttton pending-btn"
-                        onClick={() => resettimer(index)}
-                        id="pending"
+                    <>
+                      <span className="toggle-button me-2">
+                        <input
+                          style={{ backgroundColor: itemStates[index].pcolor }}
+                          type="button"
+                          className="toggle-buttton pending-btn"
+                          onClick={() => resettimer(index)}
+                          id="pending"
+                        />
+                        <input
+                          style={{ backgroundColor: itemStates[index].oncolor }}
+                          type="button"
+                          className="toggle-buttton ongoing-btn"
+                          onClick={() => start(index)}
+                          id="ongoing"
+                        />
+                        <input
+                          style={{ backgroundColor: itemStates[index].ccolor }}
+                          type="button"
+                          className="toggle-buttton completebutton-btn"
+                          onClick={() => stop(index)}
+                          id="done"
+                        />
+                      </span>
+                      <p
+                        className="ms-5"
+                        id="todo-item"
+                        style={{ textDecoration: itemStates[index].strike }}
+                      >
+                        {element}
+                      </p>
+                      <span id="stop-watch" className="ms-auto">
+                        {format(itemStates[index].seconds)}
+                      </span>
+                      <FaPencilAlt
+                        className="ms-auto fs-4"
+                        onClick={() => editItem(index)}
                       />
-                      <input
-                        style={{ backgroundColor: itemtask[index].oncolor }}
-                        type="button"
-                        className="toggle-buttton ongoing-btn"
-                        onClick={() => start(index)}
-                        id="ongoing"
+                      <MdDelete
+                        className="ms-3 fs-3"
+                        onClick={() => deleteitems(index)}
                       />
-                      <input
-                        style={{ backgroundColor: itemtask[index].ccolor }}
-                        type="button"
-                        className="toggle-buttton completebutton-btn"
-                        onClick={() => stop(index)}
-                        id="done"
-                      />
-                    </span>
-                    <p
-                      className="ms-5"
-                      id="todo-item"
-                      style={{ textDecoration: itemtask[index].strike, width:"70px" }}
-                    >
-                      {element}
-                    </p>
-                    <span id="stop-watch" className="ms-auto">
-                      {format(itemtask[index].seconds)}
-                    </span>
-                    <FaPencilAlt
-                      className="ms-auto fs-4"
-                      onClick={() => editItem(index)}
-                    />
-                    <DeleteIcon
-                      className="ms-3 fs-3"
-                      onClick={() => deleteitems(index)}
-                    />
-                  </>
+                    </>
+                  
                 </div>
               ) : null;
             })}

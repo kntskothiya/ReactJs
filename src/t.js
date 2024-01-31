@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import { useState , useEffect } from "react";
+import { useState } from "react";
 import { FaSquarePlus } from "react-icons/fa6";
 import { FaPencilAlt } from "react-icons/fa";
-import DeleteIcon from '@mui/icons-material/Delete';
+import { MdDelete } from "react-icons/md";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import "sweetalert2/dist/sweetalert2.min.css";
 import moment from "moment";
@@ -16,45 +16,30 @@ function App() {
   let [itemtask, setitemtask] = useState([]);
   let [filteritems, setfilteritems] = useState("all");
 
-  useEffect(() => {
-    let storeddata = JSON.parse(localStorage.getItem("info"));
-
-    if (storeddata) {
-      setlistitem(storeddata.map((item) => item.inputdata));
-      setitemtask(storeddata.map((item) => ({
-        ...item,
-        stime: "",
-        etime: "",
-      })));
-    }
-  }, []);
-
-  let filtertask = (status) => {
+  let filtertask = (status) => {  
     setfilteritems(status);
   };
 
   function additems() {
     if (inputdata === "") {
       return;
-    }
-    else if (editindex !== null) {
+    } else if (editindex !== null) {
+      setlistitem((prevItems) => {
+        let updatedItems = [...prevItems];
+        updatedItems[editindex] = inputdata;
+        return updatedItems;
+      });
+
       setitemtask((prevStates) => {
-        let updatetask = [...prevStates];
-        updatetask[editindex] = {
-          ...updatetask[editindex],
+        let updatedStates = [...prevStates];
+        updatedStates[editindex] = {
+          ...updatedStates[editindex],
           inputdata: inputdata,
         };
-        return updatetask;
+        return updatedStates;
       });
 
       seteditindex(null);
-
-      let updatels = [...itemtask];
-      updatels[editindex] = {
-        ...updatels[editindex],
-        inputdata: inputdata,
-      };
-      localStorage.setItem("info", JSON.stringify(updatels));
     } else {
       setlistitem([...listitem, inputdata]);
       setitemtask([
@@ -71,26 +56,21 @@ function App() {
           etime: "",
         },
       ]);
-
-      localStorage.setItem(
-        "info",
-        JSON.stringify([
-          ...itemtask,
-          {
-            inputdata,
-            runtime: false,
-            pcolor: "#0b5ed7",
-            oncolor: "",
-            ccolor: "",
-            strike: "",
-            seconds: 0,
-            stime: "",
-            etime: "",
-          },
-        ])
-      );
     }
     setinputdata("");
+
+    localStorage.setItem("info", JSON.stringify([...itemtask, {
+      inputdata,
+      runtime: false,
+      pcolor: "#0b5ed7",
+      oncolor: "",
+      ccolor: "",
+      strike: "",
+      seconds: 0,
+      stime: "",
+      etime: "",  
+    }]));
+    
   }
 
   function enterkey(e) {
@@ -102,10 +82,9 @@ function App() {
 
   function clearall() {
     setlistitem([]);
-    localStorage.clear();
   }
 
-  function deleteitems(index) {
+  function deleteitems(id) {
     Swal.fire({
       title: "Are you sure?",
       icon: "warning",
@@ -116,14 +95,10 @@ function App() {
       cancelButtonText: "No",
     }).then((result) => {
       if (result.isConfirmed) {
-        let updateitem = [...listitem];
-        updateitem.splice(index, 1);
-
-        let abc = [...itemtask];
-        abc.splice(index, 1);
-        setlistitem(updateitem);
-        setitemtask(abc);
-        savelocalstorage(abc);
+        let deleteitem = listitem.filter((element, index) => {
+          return index !== id;
+        });
+        setlistitem(deleteitem);
         Swal.fire({
           title: "Deleted!",
           text: "Your task has been deleted.",
@@ -135,6 +110,7 @@ function App() {
 
   useEffect(() => {
     let timers = [];
+
     listitem.forEach((item, index) => {
       if (itemtask[index].runtime) {
         timers[index] = setInterval(() => {
@@ -149,6 +125,7 @@ function App() {
         }, 1000);
       }
     });
+
     return () => {
       timers.forEach((timer) => clearInterval(timer));
     };
@@ -165,9 +142,7 @@ function App() {
         oncolor: "#ffca2c",
         ccolor: "",
         stime: moment().format("hh:mm:ss A"),
-        etime: "",
       };
-      savelocalstorage(newtask);
       return newtask;
     });
   }
@@ -184,7 +159,6 @@ function App() {
         ccolor: "#157347",
         etime: moment().format("hh:mm:ss A"),
       };
-      savelocalstorage(newtask);
       return newtask;
     });
   }
@@ -201,13 +175,8 @@ function App() {
         seconds: 0,
         runtime: false,
       };
-      savelocalstorage(newtask);
       return newtask;
     });
-  }
-
-  function savelocalstorage(abctime) {
-    localStorage.setItem("info", JSON.stringify(abctime));
   }
 
   function editItem(index) {
@@ -319,7 +288,7 @@ function App() {
                     <p
                       className="ms-5"
                       id="todo-item"
-                      style={{ textDecoration: itemtask[index].strike, width:"70px" }}
+                      style={{ textDecoration: itemtask[index].strike }}
                     >
                       {element}
                     </p>
@@ -330,7 +299,7 @@ function App() {
                       className="ms-auto fs-4"
                       onClick={() => editItem(index)}
                     />
-                    <DeleteIcon
+                    <MdDelete
                       className="ms-3 fs-3"
                       onClick={() => deleteitems(index)}
                     />
