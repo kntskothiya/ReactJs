@@ -296,21 +296,21 @@ function App() {
                         <input
                           style={{ backgroundColor: itemtask[index].pcolor }}
                           type="button"
-                          className="toggle-buttton pending-btn"
+                          className="toggle-btn pending-btn"
                           onClick={() => resettimer(index)}
                           id="pending"
                         />
                         <input
                           style={{ backgroundColor: itemtask[index].oncolor }}
                           type="button"
-                          className="toggle-buttton ongoing-btn"
+                          className="toggle-btn ongoing-btn"
                           onClick={() => start(index)}
                           id="ongoing"
                         />
                         <input
                           style={{ backgroundColor: itemtask[index].ccolor }}
                           type="button"
-                          className="toggle-buttton completebutton-btn"
+                          className="toggle-btn completebutton-btn"
                           onClick={() => stop(index)}
                           id="done"
                         />
